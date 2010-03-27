@@ -1,32 +1,32 @@
 public class KnowledgeBase
 {
 	//Borderline Isolated Systolic Hypertension
-	static int BISH = 140;
+	int BISH = 140;
 	//Isolated Systolic Hypertension
-	static int ISH = 160;
+	int ISH = 160;
 	//Severe Isolated Systolic Hypertension
-	static int SISH = 200;
+	int SISH = 200;
 	//Diastolic High Normal
-	static int DHN = 85;
+	int DHN = 85;
 	//Diastolic Mild Hypertension
-	static int DMH = 90;
+	int DMH = 90;
 	//Diastolic Moderate Hypertension
-	static int DModH = 105;
+	int DModH = 105;
 	//Diastolic Severe Hypertension
-	static int DSH = 115;
+	int DSH = 115;
 
 	//Low Systolic
-	static int LS = 90;
+	int LS = 90;
 	//Low Low Systolic
-	static int LLS = 60;
+	int LLS = 60;
 	//High Low Systolic
-	static int HLS = 50;
+	int HLS = 50;
 	//Low Diastolic
-	static int LD = 60;
+	int LD = 60;
 	//Low Low Diastolic
-	static int LLD = 40;
+	int LLD = 40;
 	//High Low Diastolic
-	static int HLD = 33;
+	int HLD = 33;
 
 
 	public String BloodPressureDiagnosis(int Systolic, int Diastolic)
@@ -120,6 +120,41 @@ public class KnowledgeBase
 	
 	public KnowledgeBase()
 	{
+		Scanner S = new Scanner(new FileInputStream("knowledgebase.txt"));
+		while(S.hasNextLine())
+		{
+			String temp = S.nextLine();
+			if(temp.indexOf("//") == -1)
+			{
+				String[] tempArr = temp.split(":");
+				if(tempArr[0] == "BISH")
+					BISH = Integer.parseInt(tempArr[2]);
+				if(tempArr[0] == "ISH")
+					ISH = Integer.parseInt(tempArr[2]);
+				if(tempArr[0] == "SISH")
+					SISH = Integer.parseInt(tempArr[2]);
+				if(tempArr[0] == "DHN")
+					DHN = Integer.parseInt(tempArr[2]);
+				if(tempArr[0] == "DMH")
+					DMH = Integer.parseInt(tempArr[2]);
+				if(tempArr[0] == "DModH")
+					DModH = Integer.parseInt(tempArr[2]);
+				if(tempArr[0] == "DSH")
+					DSH = Integer.parseInt(tempArr[2]);
+				if(tempArr[0] == "LS")
+					LS = Integer.parseInt(tempArr[2]);
+				if(tempArr[0] == "LLS")
+					LLS = Integer.parseInt(tempArr[2]);
+				if(tempArr[0] == "HLS")
+					HLS = Integer.parseInt(tempArr[2]);
+				if(tempArr[0] == "LD")
+					LD = Integer.parseInt(tempArr[2]);
+				if(tempArr[0] == "LLD")
+					LLD = Integer.parseInt(tempArr[2]);
+				if(tempArr[0] == "HLD")
+					HLD = Integer.parseInt(tempArr[2]);
+			}
+		}
 		commThread T = new commThread();
 		T.setDaemon(true);
 		T.start();
@@ -167,7 +202,7 @@ public class KnowledgeBase
 		
 		public void run()
 		{
-			boolean running = true;
+			boolean running = false;
 			try
 			{
 				server = new Socket(ip, port);
@@ -175,7 +210,7 @@ public class KnowledgeBase
 				BufferedOutputStream bos = new BufferedOutputStream(server.getOutputStream());
 				BufferedInputStream bis = new BufferedInputStream(server.getInputStream());
 				
-				while(running)
+				while(true)
 				{
 					int i = bis.read();
 					byte [] b = new byte[100];
@@ -193,19 +228,17 @@ public class KnowledgeBase
 					int msgid = Parser.getMessageID(parsed);
 					if(Parser.checkMessageID(msgid, message))
 					{
-						if(msgid == 25)
-						{
-							running = false;
-						}
-						else
-						{
-							String out = Parser.reparse(Parser.reformat(parsed, Parser.parseMessage(Parser.readMessge(msgid))), "$$$");
-							// write out to server
-							byte[] b2 = out.getBytes();
+						String out = Parser.reparse(Parser.reformat(parsed, Parser.parseMessage(Parser.readMessge(msgid))), "$$$");
+						
+						if(msgid == 24)
+							running = true;
+						// write out to server
+						byte[] b2 = out.getBytes();
+						if(running)
 							bos.write(b2, 0, b2.length);
-						}
+						if(msgid == 25)
+							running = false;
 					}
-				}
 				
 			}
 			catch(Exception e)

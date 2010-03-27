@@ -44,25 +44,50 @@ public class  BloodPressureMonitor
 		
 		public void run()
 		{
+			boolean running = false;
 			try
 			{
 				server = new Socket(ip, port);
 				
-				//BufferedOutputStream bos = new BufferedOutputStream(server.getOutputStream());
+				BufferedOutputStream bos = new BufferedOutputStream(server.getOutputStream());
 				BufferedInputStream bis = new BufferedInputStream(server.getInputStream());
+				
 				while(true)
 				{
-					byte[] b = new byte[100];
-					bis.read(b);
-					String input = new String(b);
-					System.out.println(input);
-				}
+					int i = bis.read();
+					byte [] b = new byte[100];
+					int j = 0;
+					while(i != -1)
+					{
+						b = add(b, i, j);
+						j++;
+						i = bis.read();
+					}
 				
+					String message = new String(b);
+				
+					String[][] parsed = Parser.parseMessage(message, "$$$");
+					int msgid = Parser.getMessageID(parsed);
+					if(Parser.checkMessageID(msgid, message))
+					{
+						String out = Parser.reparse(Parser.reformat(parsed, Parser.parseMessage(Parser.readMessge(msgid))), "$$$");
+						
+						if(msgid == 24)
+							running = true;
+						// write out to server
+						byte[] b2 = out.getBytes();
+						if(running)
+							bos.write(b2, 0, b2.length);
+						if(msgid == 25)
+							running = false;
+					}
+				}
 			}
 			catch(Exception e)
 			{
 				e.printStackTrace();
 			}
+			
 		}
 	}
 }
