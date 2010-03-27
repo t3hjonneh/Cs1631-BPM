@@ -1,3 +1,6 @@
+import java.util.*;
+import java.io.*;
+
 public class KnowledgeBase
 {
 	//Borderline Isolated Systolic Hypertension
@@ -27,7 +30,6 @@ public class KnowledgeBase
 	int LLD = 40;
 	//High Low Diastolic
 	int HLD = 33;
-
 
 	public String BloodPressureDiagnosis(int Systolic, int Diastolic)
 	{
@@ -118,6 +120,43 @@ public class KnowledgeBase
 		return ret;
 	}
 	
+	private String getConfirm(int msgID)
+	{
+		return "MsgID$$$26$$$Description$$$Acknowledgement$$$AckMsgID$$$" + msgID + "$$$Yes$$$Name$$$BloodPressureMonitorKnowledgeBase"
+	}
+	
+	private String output(String diagnosis)
+	{
+	
+	}
+	
+	private int[] getStolic(String[][] parsed)
+	{
+		int[] ret = new int[2];
+		int i = 0;
+		while((!parsed[0][i].equals("Systolic")) && (!parsed[0][i].equals("Diastolic")))
+			i++;
+		
+		if(parsed[0][i].equals("Systolic"))
+			ret[0] = Integer.parseInt(parsed[1][i]);
+		
+		if(parsed[0][i].equals("Diastolic"))
+			ret[1] = Integer.parseInt(parsed[1][i]);
+		
+		i++;
+		
+		while((!parsed[0][i].equals("Systolic")) && (!parsed[0][i].equals("Diastolic")))
+			i++;
+		
+		if(parsed[0][i].equals("Systolic"))
+			ret[0] = Integer.parseInt(parsed[1][i]);
+		
+		if(parsed[0][i].equals("Diastolic"))
+			ret[1] = Integer.parseInt(parsed[1][i]);
+		
+		return ret;
+	}
+	
 	public KnowledgeBase()
 	{
 		Scanner S = new Scanner(new FileInputStream("knowledgebase.txt"));
@@ -202,15 +241,15 @@ public class KnowledgeBase
 		
 		public void run()
 		{
-			boolean running = false;
 			try
 			{
 				server = new Socket(ip, port);
 				
 				BufferedOutputStream bos = new BufferedOutputStream(server.getOutputStream());
 				BufferedInputStream bis = new BufferedInputStream(server.getInputStream());
-				
-				while(true)
+				boolean running = true;
+				boolean doSomething = false;
+				while(running)
 				{
 					int i = bis.read();
 					byte [] b = new byte[100];
@@ -221,25 +260,45 @@ public class KnowledgeBase
 						j++;
 						i = bis.read();
 					}
-				
+					
 					String message = new String(b);
-				
+					
 					String[][] parsed = Parser.parseMessage(message, "$$$");
 					int msgid = Parser.getMessageID(parsed);
 					if(Parser.checkMessageID(msgid, message))
 					{
-						String out = Parser.reparse(Parser.reformat(parsed, Parser.parseMessage(Parser.readMessge(msgid))), "$$$");
-						
-						if(msgid == 24)
-							running = true;
+						String out = null;
+						// String out = Parser.reparse(Parser.reformat(parsed, Parser.parseMessage(Parser.readMessge(msgid))), "$$$");
 						// write out to server
-						byte[] b2 = out.getBytes();
-						if(running)
+						switch(msgid)
+						{
+							case 24:
+								doSomething = true;
+								out = getConfirm(msgid);
+								break;
+							case 25:
+								doSomething = false;
+								out = getConfirm(msgid);
+								byte[] b2 = out.getBytes();
+								bos.write(b2, 0, b2.length);
+								break;
+							case 31:
+								int[] stolic = getStolic(parsed);
+								out = output(bloodPressureDiagnosis(stolic[0], stolic[1]));
+								break;
+							case 130:
+								int[] stolic = getStolic(parsed);
+								out = output(bloodPressureDiagnosis(stolic[0], stolic[1]));
+								break;
+						}
+						
+						if((doSomething) && (out != null))
+						{
+							byte[] b2 = out.getBytes();
 							bos.write(b2, 0, b2.length);
-						if(msgid == 25)
-							running = false;
+						}
 					}
-				
+				}
 			}
 			catch(Exception e)
 			{
