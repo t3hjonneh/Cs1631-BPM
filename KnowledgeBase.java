@@ -167,33 +167,46 @@ public class KnowledgeBase
 		
 		public void run()
 		{
+			boolean running = true;
 			try
 			{
 				server = new Socket(ip, port);
 				
 				BufferedOutputStream bos = new BufferedOutputStream(server.getOutputStream());
 				BufferedInputStream bis = new BufferedInputStream(server.getInputStream());
-				int i = bis.read();
-				byte [] b = new byte[100];
-				int j = 0;
-				while(i != -1)
+				
+				while(running)
 				{
-					b = add(b, i, j);
-					j++;
-					i = bis.read();
+					int i = bis.read();
+					byte [] b = new byte[100];
+					int j = 0;
+					while(i != -1)
+					{
+						b = add(b, i, j);
+						j++;
+						i = bis.read();
+					}
+				
+					String message = new String(b);
+				
+					String[][] parsed = Parser.parseMessage(message, "$$$");
+					int msgid = Parser.getMessageID(parsed);
+					if(Parser.checkMessageID(msgid, message))
+					{
+						if(msgid == 25)
+						{
+							running = false;
+						}
+						else
+						{
+							String out = Parser.reparse(Parser.reformat(parsed, Parser.parseMessage(Parser.readMessge(msgid))), "$$$");
+							// write out to server
+							byte[] b2 = out.getBytes();
+							bos.write(b2, 0, b2.length);
+						}
+					}
 				}
 				
-				String message = new String(b);
-				
-				String[][] parsed = Parser.parseMessage(message, "$$$");
-				int msgid = Parser.getMessageID(parsed);
-				if(Parser.checkMessageID(msgid))
-				{
-					String out = Parser.reparse(Parser.reformat(parsed, Parser.parseMessage(Parser.readMessge(msgid))), "$$$");
-					// write out to server
-					byte[] b2 = out.getBytes();
-					bos.write(b2, 0, b2.length);
-				}
 			}
 			catch(Exception e)
 			{
