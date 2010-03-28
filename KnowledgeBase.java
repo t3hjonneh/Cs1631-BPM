@@ -32,7 +32,7 @@ public class KnowledgeBase
 	//High Low Diastolic
 	int HLD = 33;
 
-	public String BloodPressureDiagnosis(int Systolic, int Diastolic)
+	public String bloodPressureDiagnosis(int Systolic, int Diastolic)
 	{
 		int conditionD = 0;
 		if(Diastolic >= DSH)
@@ -131,7 +131,7 @@ public class KnowledgeBase
 		String[] tempdiag = diagnosis.split(" : ");
 		return "MsgID$$$132$$$Description$$$Blood Pressure Alert with Diagnosis$$$Systolic$$$Systolic$$$" + systolic + "$$$Diastolic$$$" + diastolic
 			+ "$$$Pulse$$$5$$$Alert Type$$$Blood Pressure Alert$$$Diagnosis$$$" + tempdiag[0] + "$$$Recommended Course of Action$$$" + tempdiag[1]
-			+ "$$$DateTime$$$" + Date().toString();
+			+ "$$$DateTime$$$" + (new Date()).toString();
 	}
 	
 	private int[] getStolic(String[][] parsed)
@@ -163,40 +163,49 @@ public class KnowledgeBase
 	
 	public KnowledgeBase()
 	{
-		Scanner S = new Scanner(new FileInputStream("knowledgebase.txt"));
-		while(S.hasNextLine())
+		Scanner S;
+		try
 		{
-			String temp = S.nextLine();
-			if(temp.indexOf("//") == -1)
+			S = new Scanner(new FileInputStream("knowledgebase.txt"));
+			while(S.hasNextLine())
 			{
-				String[] tempArr = temp.split(":");
-				if(tempArr[0] == "BISH")
-					BISH = Integer.parseInt(tempArr[2]);
-				if(tempArr[0] == "ISH")
-					ISH = Integer.parseInt(tempArr[2]);
-				if(tempArr[0] == "SISH")
-					SISH = Integer.parseInt(tempArr[2]);
-				if(tempArr[0] == "DHN")
-					DHN = Integer.parseInt(tempArr[2]);
-				if(tempArr[0] == "DMH")
-					DMH = Integer.parseInt(tempArr[2]);
-				if(tempArr[0] == "DModH")
-					DModH = Integer.parseInt(tempArr[2]);
-				if(tempArr[0] == "DSH")
-					DSH = Integer.parseInt(tempArr[2]);
-				if(tempArr[0] == "LS")
-					LS = Integer.parseInt(tempArr[2]);
-				if(tempArr[0] == "LLS")
-					LLS = Integer.parseInt(tempArr[2]);
-				if(tempArr[0] == "HLS")
-					HLS = Integer.parseInt(tempArr[2]);
-				if(tempArr[0] == "LD")
-					LD = Integer.parseInt(tempArr[2]);
-				if(tempArr[0] == "LLD")
-					LLD = Integer.parseInt(tempArr[2]);
-				if(tempArr[0] == "HLD")
-					HLD = Integer.parseInt(tempArr[2]);
+			String temp = S.nextLine();
+				if(temp.indexOf("//") == -1)
+				{
+					String[] tempArr = temp.split(":");
+					if(tempArr[0] == "BISH")
+						BISH = Integer.parseInt(tempArr[2]);
+					if(tempArr[0] == "ISH")
+						ISH = Integer.parseInt(tempArr[2]);
+					if(tempArr[0] == "SISH")
+						SISH = Integer.parseInt(tempArr[2]);
+					if(tempArr[0] == "DHN")
+						DHN = Integer.parseInt(tempArr[2]);
+					if(tempArr[0] == "DMH")
+						DMH = Integer.parseInt(tempArr[2]);
+					if(tempArr[0] == "DModH")
+						DModH = Integer.parseInt(tempArr[2]);
+					if(tempArr[0] == "DSH")
+						DSH = Integer.parseInt(tempArr[2]);
+					if(tempArr[0] == "LS")
+						LS = Integer.parseInt(tempArr[2]);
+					if(tempArr[0] == "LLS")
+						LLS = Integer.parseInt(tempArr[2]);
+					if(tempArr[0] == "HLS")
+						HLS = Integer.parseInt(tempArr[2]);
+					if(tempArr[0] == "LD")
+						LD = Integer.parseInt(tempArr[2]);
+					if(tempArr[0] == "LLD")
+						LLD = Integer.parseInt(tempArr[2]);
+					if(tempArr[0] == "HLD")
+						HLD = Integer.parseInt(tempArr[2]);
+				}
 			}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			System.exit(1);
 		}
 		commThread T = new commThread();
 		T.setDaemon(true);
@@ -269,11 +278,12 @@ public class KnowledgeBase
 					
 					String[][] parsed = Parser.parseMessage(message, "$$$");
 					int msgid = Parser.getMessageID(parsed);
-					if(Parser.checkMessageID(msgid, message))
+					if(Parser.checkMsgID(msgid, message))
 					{
 						String out = null;
 						// String out = Parser.reparse(Parser.reformat(parsed, Parser.parseMessage(Parser.readMessge(msgid))), "$$$");
 						// write out to server
+						int[] stolic;
 						switch(msgid)
 						{
 							case 24:
@@ -287,11 +297,11 @@ public class KnowledgeBase
 								bos.write(b2, 0, b2.length);
 								break;
 							case 31:
-								int[] stolic = getStolic(parsed);
+								stolic = getStolic(parsed);
 								out = output(bloodPressureDiagnosis(stolic[0], stolic[1]), stolic[0], stolic[1]);
 								break;
 							case 130:
-								int[] stolic = getStolic(parsed);
+								stolic = getStolic(parsed);
 								out = output(bloodPressureDiagnosis(stolic[0], stolic[1]), stolic[0], stolic[1]);
 								break;
 						}

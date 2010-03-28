@@ -1,4 +1,5 @@
 import java.util.*;
+import java.io.*;
 import java.lang.*;
 
 public class Parser
@@ -42,10 +43,22 @@ public class Parser
 	
 	public static String readMessage(int msgid)
 	{
-		Scanner in = new Scanner(new FileInputStream("Msg" + msgid + ".xml"));
-		String ret = new String();
-		while(in.hasNextLine())
-			ret += in.nextLine();
+		Scanner in;
+		String ret = "";
+		try
+		{
+			in = new Scanner(new FileInputStream("Msg" + msgid + ".xml"));
+			ret = new String();
+			while(in.hasNextLine())
+				ret += in.nextLine();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+		
 		
 		return ret;
 	}
@@ -86,7 +99,7 @@ public class Parser
 
 	public static String[][] parseMessage(String message, String delimeter)
 	{
-		String [] items = message.split(delimiter);
+		String [] items = message.split(delimeter);
 		String [][] ret = new String[2][items.length/2];
 		for(int i = 0; i < items.length; i++)
 			ret[i%2][i/2] = items[i];

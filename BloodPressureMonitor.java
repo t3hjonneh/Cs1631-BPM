@@ -84,7 +84,7 @@ public class  BloodPressureMonitor
 				
 					String[][] parsed = Parser.parseMessage(message, "$$$");
 					int msgid = Parser.getMessageID(parsed);
-					if(Parser.checkMessageID(msgid, message))
+					if(Parser.checkMsgID(msgid, message))
 					{
 						String out = "";
 						if(msgid == 132)
