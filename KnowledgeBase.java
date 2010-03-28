@@ -127,7 +127,10 @@ public class KnowledgeBase
 	
 	private String output(String diagnosis)
 	{
-	
+		String[] tempdiag = diagnosis.split(" : ");
+		return "MsgID$$$132$$$Description$$$Blood Pressure Alert with Diagnosis$$$Systolic$$$Systolic$$$" + systolic + "$$$Diastolic$$$" + diastolic
+			+ "$$$Pulse$$$5$$$Alert Type$$$Blood Pressure Alert$$$Diagnosis$$$" + tempdiag[0] + "$$$Recommended Course of Action$$$" + tempdiag[1]
+			+ "$$$DateTime$$$" + Date().toString();
 	}
 	
 	private int[] getStolic(String[][] parsed)
