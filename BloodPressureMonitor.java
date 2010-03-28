@@ -70,10 +70,11 @@ public class  BloodPressureMonitor
 					int msgid = Parser.getMessageID(parsed);
 					if(Parser.checkMessageID(msgid, message))
 					{
+						String out = "";
 						if(msgid == 132)
-							String out = Parser.reparse(Parser.reformat(parsed, Parser.parseMessage(Parser.readMessge(msgid-1))), "$$$");
+							out = Parser.reparse(Parser.reformat(parsed, Parser.parseMessage(Parser.readMessage(msgid - 1))), "$$$");
 						else
-							String out = Parser.reparse(Parser.reformat(parsed, Parser.parseMessage(Parser.readMessge(msgid))), "$$$");
+							out = Parser.reparse(Parser.reformat(parsed, Parser.parseMessage(Parser.readMessage(msgid))), "$$$");
 						
 						if(msgid == 24)
 							running = true;

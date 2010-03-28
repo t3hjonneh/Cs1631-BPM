@@ -122,7 +122,7 @@ public class KnowledgeBase
 	
 	private String getConfirm(int msgID)
 	{
-		return "MsgID$$$26$$$Description$$$Acknowledgement$$$AckMsgID$$$" + msgID + "$$$Yes$$$Name$$$BloodPressureMonitorKnowledgeBase"
+		return "MsgID$$$26$$$Description$$$Acknowledgement$$$AckMsgID$$$" + msgID + "$$$Yes$$$Name$$$BloodPressureMonitorKnowledgeBase";
 	}
 	
 	private String output(String diagnosis, int systolic, int diastolic)

@@ -117,7 +117,7 @@ public class Parser
 			
 			end = message.indexOf(key2, start);
 			
-			keys.add(message.substring(start, end);
+			keys.add(message.substring(start, end));
 			offset = end + 6;
 		}
 
@@ -133,7 +133,7 @@ public class Parser
 			
 			end = message.indexOf(value2, start);
 			
-			values.add(message.substring(start, end);
+			values.add(message.substring(start, end));
 			offset = end + 6;
 		}
 
