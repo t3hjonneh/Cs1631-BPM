@@ -25,6 +25,22 @@ public class  BloodPressureMonitor
 		while(true);
 	}
 	
+	private byte[] add(byte[] b, int i, int offset)
+	{
+		if(offset == b.length)
+		{
+			byte[] ret = new byte[b.length*2];
+			for(int j = 0; j < b.length; j++)
+				ret[j] = b[j];
+			
+			b = ret;
+		}
+		
+		b[offset] = (byte)i;
+		
+		return b;
+	}
+	
 	private class commThread extends Thread
 	{
 		private String ip = "127.0.0.1";
