@@ -21,7 +21,10 @@ public class Parser
 		while(!msg[0][i].equals(val))
 			i++;
 		
-		return msg[1][i];
+		if(msg[1][i].equals("132"))
+			return "131";
+		else
+			return msg[1][i];
 	}
 	
 	public static String[][] reformat(String[][] msg1, String[][] msg2)
@@ -64,17 +67,11 @@ public class Parser
 				return Parser.secondCheck(mes);
 			case 25:
 				return Parser.secondCheck(mes);
-			case 26:
-				return Parser.secondCheck(mes);
 			case 31:
-				return true;
-			case 32:
-				return true;
-			case 38:
 				return true;
 			case 130:
 				return true;
-			case 131:
+			case 132:
 				return true;
 		}
 

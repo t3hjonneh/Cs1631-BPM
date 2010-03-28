@@ -125,7 +125,7 @@ public class KnowledgeBase
 		return "MsgID$$$26$$$Description$$$Acknowledgement$$$AckMsgID$$$" + msgID + "$$$Yes$$$Name$$$BloodPressureMonitorKnowledgeBase"
 	}
 	
-	private String output(String diagnosis)
+	private String output(String diagnosis, int systolic, int diastolic)
 	{
 		String[] tempdiag = diagnosis.split(" : ");
 		return "MsgID$$$132$$$Description$$$Blood Pressure Alert with Diagnosis$$$Systolic$$$Systolic$$$" + systolic + "$$$Diastolic$$$" + diastolic
@@ -287,11 +287,11 @@ public class KnowledgeBase
 								break;
 							case 31:
 								int[] stolic = getStolic(parsed);
-								out = output(bloodPressureDiagnosis(stolic[0], stolic[1]));
+								out = output(bloodPressureDiagnosis(stolic[0], stolic[1]), stolic[0], stolic[1]);
 								break;
 							case 130:
 								int[] stolic = getStolic(parsed);
-								out = output(bloodPressureDiagnosis(stolic[0], stolic[1]));
+								out = output(bloodPressureDiagnosis(stolic[0], stolic[1]), stolic[0], stolic[1]);
 								break;
 						}
 						
