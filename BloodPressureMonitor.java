@@ -25,6 +25,11 @@ public class  BloodPressureMonitor
 		while(true);
 	}
 	
+	private String getConfirm(int msgID)
+	{
+		return "MsgID$$$26$$$Description$$$Acknowledgement$$$AckMsgID$$$" + msgID + "$$$YesNo$$$Yes$$$Name$$$BloodPressureMonitorKnowledgeBase";
+	}
+	
 	private byte[] add(byte[] b, int i, int offset)
 	{
 		if(offset == b.length)
@@ -39,6 +44,21 @@ public class  BloodPressureMonitor
 		b[offset] = (byte)i;
 		
 		return b;
+	}
+	
+	private String[][] parseFrom31(String[][] parsed, String[][] msg133)
+	{
+		return parsed;
+	}
+	
+	private String[][] parseFrom130(String[][] parsed, String[][] msg133)
+	{
+		int i = 0;
+		for(; !parsed[0][i].equals("MsgID"); i++);
+		
+		parsed[1][i] = "133";
+		
+		return parsed;
 	}
 	
 	private class commThread extends Thread
@@ -65,7 +85,7 @@ public class  BloodPressureMonitor
 			{
 				server = new Socket(ip, port);
 				
-				BufferedOutputStream bos = new BufferedOutputStream(server.getOutputStream());
+				PrintWriter pw = new PrintWriter(server.getOutputStream());
 				BufferedInputStream bis = new BufferedInputStream(server.getInputStream());
 				
 				while(true)
@@ -73,33 +93,57 @@ public class  BloodPressureMonitor
 					int i = bis.read();
 					byte [] b = new byte[100];
 					int j = 0;
-					while(i != -1)
+					while(i != -1 && ((char)i) != '\n')
 					{
 						b = add(b, i, j);
 						j++;
 						i = bis.read();
 					}
-				
+					b[j-1] = 0;
 					String message = new String(b);
+					System.out.println("***Message Recieved***");
+					System.out.println(message);
+					System.out.println("\n");
 				
-					String[][] parsed = Parser.parseMessage(message, "$$$");
+					String[][] parsed = Parser.parseMessage(message, "[$][$][$]");
 					int msgid = Parser.getMessageID(parsed);
 					if(Parser.checkMsgID(msgid, message))
 					{
 						String out = "";
-						if(msgid == 132)
-							out = Parser.reparse(Parser.reformat(parsed, Parser.parseMessage(Parser.readMessage(msgid - 1))), "$$$");
-						else
-							out = Parser.reparse(Parser.reformat(parsed, Parser.parseMessage(Parser.readMessage(msgid))), "$$$");
+						String [][] msg133;
 						
-						if(msgid == 24)
-							running = true;
+						switch(msgid)
+						{
+							case 24:
+								running = true;
+								out = getConfirm(msgid);
+								break;
+							case 25:
+								running = false;
+								out = getConfirm(msgid);
+								pw.println(out);
+								pw.flush();
+								break;
+							case 31:
+								msg133 = Parser.parseMessage(Parser.readMessage(133));
+								out = Parser.reparse(parseFrom130(parsed, msg133), "$$$"); // parseFrom31(parsed, msg133), "$$$");
+								break;
+							case 130:
+								msg133 = Parser.parseMessage(Parser.readMessage(133));
+								out = Parser.reparse(parseFrom130(parsed, msg133), "$$$");
+								break;
+						}
+						
+						
 						// write out to server
-						byte[] b2 = out.getBytes();
 						if(running)
-							bos.write(b2, 0, b2.length);
-						if(msgid == 25)
-							running = false;
+						{
+							pw.println(out);
+							pw.flush();
+							System.out.println("***Message Sent***");
+							System.out.println(out);
+							System.out.println("\n");
+						}
 					}
 				}
 			}

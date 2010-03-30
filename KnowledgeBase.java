@@ -123,7 +123,7 @@ public class KnowledgeBase
 	
 	private String getConfirm(int msgID)
 	{
-		return "MsgID$$$26$$$Description$$$Acknowledgement$$$AckMsgID$$$" + msgID + "$$$Yes$$$Name$$$BloodPressureMonitorKnowledgeBase";
+		return "MsgID$$$26$$$Description$$$Acknowledgement$$$AckMsgID$$$" + msgID + "$$$YesNo$$$Yes$$$Name$$$BloodPressureMonitorKnowledgeBase";
 	}
 	
 	private String output(String diagnosis, int systolic, int diastolic)
@@ -258,7 +258,7 @@ public class KnowledgeBase
 			{
 				server = new Socket(ip, port);
 				
-				BufferedOutputStream bos = new BufferedOutputStream(server.getOutputStream());
+				PrintWriter pw = new PrintWriter(server.getOutputStream());
 				BufferedInputStream bis = new BufferedInputStream(server.getInputStream());
 				boolean running = true;
 				boolean doSomething = false;
@@ -267,16 +267,20 @@ public class KnowledgeBase
 					int i = bis.read();
 					byte [] b = new byte[100];
 					int j = 0;
-					while(i != -1)
+					while(i != -1 && (char)i != '\n')
 					{
 						b = add(b, i, j);
 						j++;
 						i = bis.read();
 					}
 					
+					b[j-1] = 0;
 					String message = new String(b);
+					System.out.println("***Message Recieved***");
+					System.out.println(message);
+					System.out.println("\n");
 					
-					String[][] parsed = Parser.parseMessage(message, "$$$");
+					String[][] parsed = Parser.parseMessage(message, "[$][$][$]");
 					int msgid = Parser.getMessageID(parsed);
 					if(Parser.checkMsgID(msgid, message))
 					{
@@ -293,14 +297,10 @@ public class KnowledgeBase
 							case 25:
 								doSomething = false;
 								out = getConfirm(msgid);
-								byte[] b2 = out.getBytes();
-								bos.write(b2, 0, b2.length);
+								pw.println(out);
+								pw.flush();
 								break;
-							case 31:
-								stolic = getStolic(parsed);
-								out = output(bloodPressureDiagnosis(stolic[0], stolic[1]), stolic[0], stolic[1]);
-								break;
-							case 130:
+							case 133:
 								stolic = getStolic(parsed);
 								out = output(bloodPressureDiagnosis(stolic[0], stolic[1]), stolic[0], stolic[1]);
 								break;
@@ -308,8 +308,12 @@ public class KnowledgeBase
 						
 						if((doSomething) && (out != null))
 						{
-							byte[] b2 = out.getBytes();
-							bos.write(b2, 0, b2.length);
+							pw.println(out);
+							pw.flush();
+							
+							System.out.println("***Message Sent***");
+							System.out.println(out);
+							System.out.println("\n");
 						}
 					}
 				}

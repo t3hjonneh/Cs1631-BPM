@@ -86,6 +86,8 @@ public class Parser
 				return true;
 			case 132:
 				return true;
+			case 133:
+				return true;
 		}
 
 		return false;
@@ -116,9 +118,27 @@ public class Parser
 		ArrayList<String> keys = new ArrayList<String>();
 		ArrayList<String> values = new ArrayList<String>();
 
+		
+		String msgid = "<MsgID>";
+		String msgid2 = "</MsgID>";
+		String desc = "<Description>";
+		String desc2 = "</Description>";
+		
+		keys.add("MsgID");
+		keys.add("Description");
+		
 		int start = 0;
 		int end = 0;
 		int offset = 0;
+		
+		start = message.indexOf(msgid, 0);
+		start += 7;
+		end = message.indexOf(msgid2, start);
+		values.add(message.substring(start, end));
+		start = message.indexOf(desc, 0);
+		start += 13;
+		end = message.indexOf(desc2, start);
+		values.add(message.substring(start, end));
 		
 		while(true)
 		{
