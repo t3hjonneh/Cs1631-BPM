@@ -1,0 +1,36 @@
+<Msg>
+    <Head>
+        <MsgID>132</MsgID>
+        <Description>Blood Pressure Alert with Diagnosis</Description>
+    </Head>
+    <Body>
+        <Item>
+            <Key>Systolic</Key>
+            <Value>114</Value>
+        </Item>
+        <Item>
+            <Key>Diastolic</Key>
+            <Value>61</Value>
+        </Item>
+        <Item>
+            <Key>Pulse</Key>
+            <Value>75</Value>
+        </Item>
+        <Item>
+            <Key>Alert Type</Key>
+            <Value>Blood Pressure Alert</Value>
+        </Item>
+        <Item>
+            <Key>Diagnosis</Key>
+            <Value>Diagnosis</Value>
+        </Item>
+        <Item>
+            <Key>Recommended Course of Action</Key>
+            <Value>Recommended Course of Action</Value>
+        </Item>
+        <Item>
+            <Key>DateTime</Key>
+            <Value>Sat Feb 27 18:10:20 EST 2010</Value>
+        </Item>
+    </Body>
+</Msg>
