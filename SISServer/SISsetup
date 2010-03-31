@@ -1,0 +1,37 @@
+Steps to test your Plug-in Component
+
+Step 1: Change directory to local directory containing java source programs.
+
+
+Step 2: Compile the SIS Server.
+
+javac SISServer.java
+
+Step 3: Run SIS Server
+
+java SISServer
+
+Step 4: Run the Remote Interface.
+
+Click on prjRemote to run it, set IP 127.0.0.1, port 7999, click 'connect'
+
+Step 5: Load start-up xml
+
+If you are testing component, say InputProcessor, you need to use prjRemote to load the corresponding CreateInputProcessor.xml, then click 'send'
+Multiple xmls need to be loaded if you are testing more than one type of components.
+
+Step 6: Compile your written Plug-in component.
+
+javac <YourPluginComponent>.java
+
+Step 7: Run the Plug-in component where the IP address 127.0.0.1 is the local IP address of the SIS Server.
+
+java YourPluginComponent 127.0.0.1
+
+Step 8: Test your component
+
+Now you are ready to experiment with your Plug-in Component. You can load test msgs from the left pane of prjRemote then send, all the msgs received by the server from your component will be displayed in the right panel.
+
+Step 9: Finish the test
+
+When turning off the server, first close the components, then prjRemote, finally the server
