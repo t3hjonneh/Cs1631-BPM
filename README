@@ -1,0 +1,7 @@
+1.) Start Server
+2.) Connect Remote
+3.) From Remote - CreateBPM.xml
+4.) From Remote - CreateKB.xml
+5.) start BPM and KB
+6.) BPM sends 23.
+7.) KB sends 23.

@@ -47,7 +47,7 @@ public class Parser
 		String ret = "";
 		try
 		{
-			in = new Scanner(new FileInputStream("Msg" + msgid + ".xml"));
+			in = new Scanner(new FileInputStream("xml/g3/Msg" + msgid + ".xml"));
 			ret = new String();
 			while(in.hasNextLine())
 				ret += in.nextLine();
@@ -70,33 +70,6 @@ public class Parser
 			i++;
 		
 		return (new Integer(parsed[1][i])).intValue();
-	}
-
-	public static boolean checkMsgID(int id, String mes)
-	{
-		switch(id)
-		{
-			case 24:
-				return Parser.secondCheck(mes);
-			case 25:
-				return Parser.secondCheck(mes);
-			case 31:
-				return true;
-			case 130:
-				return true;
-			case 132:
-				return true;
-			case 133:
-				return true;
-		}
-
-		return false;
-	}
-
-	private static boolean secondCheck(String mes)
-	{
-		// TODO: have it actually preform the check
-		return true;
 	}
 
 	public static String[][] parseMessage(String message, String delimeter)

@@ -1,9 +1,9 @@
-import java.util.*;
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 public class KnowledgeBase
-{
+{ 
 	//Borderline Isolated Systolic Hypertension
 	int BISH = 140;
 	//Isolated Systolic Hypertension
@@ -31,7 +31,149 @@ public class KnowledgeBase
 	int LLD = 40;
 	//High Low Diastolic
 	int HLD = 33;
+	static int debug = 0;
+	
+	public static void main(String []args) throws Exception
+	{
+		if(args.length > 0)
+			for(String var : args)
+				if(var.equals("-debug"))
+					debug = 1;
+				
+		new KnowledgeBase();
+	}
+	
+	public KnowledgeBase()
+	{
+		String ip = "127.0.0.1";
+		int port = 7999;
+		Socket server;
+		PrintWriter out;
+		BufferedReader in;
+		String message;
 
+		Scanner S;
+		try
+		{
+			S = new Scanner(new FileInputStream("knowledgebase.txt"));
+			while(S.hasNextLine())
+			{
+			String temp = S.nextLine();
+				if(temp.indexOf("//") == -1)
+				{
+					String[] tempArr = temp.split(":");
+					if(tempArr[0] == "BISH")
+						BISH = Integer.parseInt(tempArr[2]);
+					if(tempArr[0] == "ISH")
+						ISH = Integer.parseInt(tempArr[2]);
+					if(tempArr[0] == "SISH")
+						SISH = Integer.parseInt(tempArr[2]);
+					if(tempArr[0] == "DHN")
+						DHN = Integer.parseInt(tempArr[2]);
+					if(tempArr[0] == "DMH")
+						DMH = Integer.parseInt(tempArr[2]);
+					if(tempArr[0] == "DModH")
+						DModH = Integer.parseInt(tempArr[2]);
+					if(tempArr[0] == "DSH")
+						DSH = Integer.parseInt(tempArr[2]);
+					if(tempArr[0] == "LS")
+						LS = Integer.parseInt(tempArr[2]);
+					if(tempArr[0] == "LLS")
+						LLS = Integer.parseInt(tempArr[2]);
+					if(tempArr[0] == "HLS")
+						HLS = Integer.parseInt(tempArr[2]);
+					if(tempArr[0] == "LD")
+						LD = Integer.parseInt(tempArr[2]);
+					if(tempArr[0] == "LLD")
+						LLD = Integer.parseInt(tempArr[2]);
+					if(tempArr[0] == "HLD")
+						HLD = Integer.parseInt(tempArr[2]);
+				}
+			}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+		try
+		{
+			server = new Socket(ip, port);
+			
+			out = new PrintWriter(server.getOutputStream());
+			in = new BufferedReader(new InputStreamReader(server.getInputStream()));
+		
+			System.out.println("Initializing...");
+			out.println("MsgID$$$23$$$Name$$$BloodPressureMonitor_KnowledgeBase$$$Passcode$$$****");
+			out.flush();
+			
+			while(true)
+			{
+				System.out.println("Waiting...");
+				message = in.readLine();
+				
+				if(debug == 1)
+					System.out.println("Message Recieved:\n"+message);
+				
+				String[][] parsed = Parser.parseMessage(message, "[$][$][$]");
+				int msgid = Parser.getMessageID(parsed);
+				
+				out.println(getMessage(msgid, parsed));
+				out.flush();
+			}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+	
+	private String getMessage(int msgID, String[][] message)
+	{
+		String[][] outMessage = new String[0][0];
+		if(msgID == 133 || msgID == 134)
+			outMessage = Parser.parseMessage(Parser.readMessage(132));
+		else
+		{
+			outMessage = Parser.parseMessage(Parser.readMessage(26));
+			for(int i = 0; i < outMessage[0].length; i++)
+				if(outMessage[0][i].equals("AckMsgID"))
+					outMessage[1][i] = Integer.toString(msgID);
+		}
+			
+		for(int i = 0; i < message[0].length; i++)
+			for(int j = 0; j < outMessage[0].length; j++)
+			{
+				if(message[0][i].equals(outMessage[0][j]) && !message[0][i].equals("MsgID") && !message[0][i].equals("Description"))
+					outMessage[1][j] = message[1][i];
+			}
+		
+		int systolic = 0, diastolic = 0;
+		for(int i = 0; i < outMessage[0].length; i++)
+			if(outMessage[0][i].equals("Systolic"))
+				systolic = Integer.parseInt(outMessage[1][i]);
+			else if(outMessage[0][i].equals("Diastolic"))
+				diastolic = Integer.parseInt(outMessage[1][i]);
+		
+		String[] diagnosis = bloodPressureDiagnosis(systolic, diastolic).split(" : ");
+		
+		for(int i = 0; i < outMessage[0].length; i++)
+			if(outMessage[0][i].equals("Diagnosis"))
+				outMessage[1][i] = diagnosis[0];
+			else if(outMessage[0][i].equals("Recommended Course of Action"))
+				outMessage[1][i] = diagnosis[1];
+		
+		
+		
+		String out = Parser.reparse(outMessage, "$$$");
+		if(debug == 1)
+			System.out.println("Message Sent:\n"+out);
+			
+		return out;
+	}
+	
 	public String bloodPressureDiagnosis(int Systolic, int Diastolic)
 	{
 		int conditionD = 0;
@@ -120,208 +262,6 @@ public class KnowledgeBase
 		
 		return ret;
 	}
-	
-	private String getConfirm(int msgID)
-	{
-		return "MsgID$$$26$$$Description$$$Acknowledgement$$$AckMsgID$$$" + msgID + "$$$YesNo$$$Yes$$$Name$$$BloodPressureMonitorKnowledgeBase";
-	}
-	
-	private String output(String diagnosis, int systolic, int diastolic)
-	{
-		String[] tempdiag = diagnosis.split(" : ");
-		return "MsgID$$$132$$$Description$$$Blood Pressure Alert with Diagnosis$$$Systolic$$$Systolic$$$" + systolic + "$$$Diastolic$$$" + diastolic
-			+ "$$$Pulse$$$5$$$Alert Type$$$Blood Pressure Alert$$$Diagnosis$$$" + tempdiag[0] + "$$$Recommended Course of Action$$$" + tempdiag[1]
-			+ "$$$DateTime$$$" + (new Date()).toString();
-	}
-	
-	private int[] getStolic(String[][] parsed)
-	{
-		int[] ret = new int[2];
-		int i = 0;
-		while((!parsed[0][i].equals("Systolic")) && (!parsed[0][i].equals("Diastolic")))
-			i++;
-		
-		if(parsed[0][i].equals("Systolic"))
-			ret[0] = Integer.parseInt(parsed[1][i]);
-		
-		if(parsed[0][i].equals("Diastolic"))
-			ret[1] = Integer.parseInt(parsed[1][i]);
-		
-		i++;
-		
-		while((!parsed[0][i].equals("Systolic")) && (!parsed[0][i].equals("Diastolic")))
-			i++;
-		
-		if(parsed[0][i].equals("Systolic"))
-			ret[0] = Integer.parseInt(parsed[1][i]);
-		
-		if(parsed[0][i].equals("Diastolic"))
-			ret[1] = Integer.parseInt(parsed[1][i]);
-		
-		return ret;
-	}
-	
-	public KnowledgeBase()
-	{
-		Scanner S;
-		try
-		{
-			S = new Scanner(new FileInputStream("knowledgebase.txt"));
-			while(S.hasNextLine())
-			{
-			String temp = S.nextLine();
-				if(temp.indexOf("//") == -1)
-				{
-					String[] tempArr = temp.split(":");
-					if(tempArr[0] == "BISH")
-						BISH = Integer.parseInt(tempArr[2]);
-					if(tempArr[0] == "ISH")
-						ISH = Integer.parseInt(tempArr[2]);
-					if(tempArr[0] == "SISH")
-						SISH = Integer.parseInt(tempArr[2]);
-					if(tempArr[0] == "DHN")
-						DHN = Integer.parseInt(tempArr[2]);
-					if(tempArr[0] == "DMH")
-						DMH = Integer.parseInt(tempArr[2]);
-					if(tempArr[0] == "DModH")
-						DModH = Integer.parseInt(tempArr[2]);
-					if(tempArr[0] == "DSH")
-						DSH = Integer.parseInt(tempArr[2]);
-					if(tempArr[0] == "LS")
-						LS = Integer.parseInt(tempArr[2]);
-					if(tempArr[0] == "LLS")
-						LLS = Integer.parseInt(tempArr[2]);
-					if(tempArr[0] == "HLS")
-						HLS = Integer.parseInt(tempArr[2]);
-					if(tempArr[0] == "LD")
-						LD = Integer.parseInt(tempArr[2]);
-					if(tempArr[0] == "LLD")
-						LLD = Integer.parseInt(tempArr[2]);
-					if(tempArr[0] == "HLD")
-						HLD = Integer.parseInt(tempArr[2]);
-				}
-			}
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			System.exit(1);
-		}
-		commThread T = new commThread();
-		T.setDaemon(true);
-		T.start();
-		
-		while(true);
-	}
-	
-	public static void main(String [] args)
-	{
-		new KnowledgeBase();
-	}
-	
-	private class commThread extends Thread
-	{
-		private String ip = "127.0.0.1";
-		private int port = 7999;
-		private Socket server;
-		
-		public void commThread()
-		{
-		
-		}
-		
-		public void commThread(String newIp, int newPort)
-		{
-			ip = newIp;
-			port = newPort;
-		}
-		
-		private byte[] add(byte[] b, int i, int offset)
-		{
-			if(offset == b.length)
-			{
-				byte[] ret = new byte[b.length*2];
-				for(int j = 0; j < b.length; j++)
-					ret[j] = b[j];
-				
-				b = ret;
-			}
-			
-			b[offset] = (byte)i;
-			
-			return b;
-		}
-		
-		public void run()
-		{
-			try
-			{
-				server = new Socket(ip, port);
-				
-				PrintWriter pw = new PrintWriter(server.getOutputStream());
-				BufferedInputStream bis = new BufferedInputStream(server.getInputStream());
-				boolean running = true;
-				boolean doSomething = false;
-				while(running)
-				{
-					int i = bis.read();
-					byte [] b = new byte[100];
-					int j = 0;
-					while(i != -1 && (char)i != '\n')
-					{
-						b = add(b, i, j);
-						j++;
-						i = bis.read();
-					}
-					
-					b[j-1] = 0;
-					String message = new String(b);
-					System.out.println("***Message Recieved***");
-					System.out.println(message);
-					System.out.println("\n");
-					
-					String[][] parsed = Parser.parseMessage(message, "[$][$][$]");
-					int msgid = Parser.getMessageID(parsed);
-					if(Parser.checkMsgID(msgid, message))
-					{
-						String out = null;
-						// String out = Parser.reparse(Parser.reformat(parsed, Parser.parseMessage(Parser.readMessge(msgid))), "$$$");
-						// write out to server
-						int[] stolic;
-						switch(msgid)
-						{
-							case 24:
-								doSomething = true;
-								out = getConfirm(msgid);
-								break;
-							case 25:
-								doSomething = false;
-								out = getConfirm(msgid);
-								pw.println(out);
-								pw.flush();
-								break;
-							case 133:
-								stolic = getStolic(parsed);
-								out = output(bloodPressureDiagnosis(stolic[0], stolic[1]), stolic[0], stolic[1]);
-								break;
-						}
-						
-						if((doSomething) && (out != null))
-						{
-							pw.println(out);
-							pw.flush();
-							
-							System.out.println("***Message Sent***");
-							System.out.println(out);
-							System.out.println("\n");
-						}
-					}
-				}
-			}
-			catch(Exception e)
-			{
-				e.printStackTrace();
-			}
-		}
-	}
 }
+
+	
