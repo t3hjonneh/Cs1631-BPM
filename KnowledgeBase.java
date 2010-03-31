@@ -114,7 +114,9 @@ public class KnowledgeBase
 			
 			while(true)
 			{
-				System.out.println("Waiting...");
+				if(debug == 1)
+					System.out.println("Waiting...");
+					
 				message = in.readLine();
 				
 				if(debug == 1)
