@@ -16,29 +16,22 @@ public class Parser
 		return ret;
 	}
 	
-	private static String getVal(String[][] msg, String val)
+	public static String getVal(String[][] msg, String key)
 	{
-		int i = 0;
-		while(!msg[0][i].equals(val))
-			i++;
-		
-		if(msg[1][i].equals("132"))
-			return "131";
-		else
-			return msg[1][i];
+		for(int i = 0; i < msg[0].length; i++)
+			if(msg[0][i].equals(key))
+				return msg[1][i];
+				
+		return "";
 	}
 	
-	public static String[][] reformat(String[][] msg1, String[][] msg2)
-	{ // format msg1 according to msg2
-		String[][] ret = new String[2][msg1[0].length];
+	public static String[][] setVal(String[][] msg, String key, String val)
+	{
+		for(int i = 0; i < msg[0].length; i++)
+			if(msg[0][i].equals(key))
+				msg[1][i] = val;
 		
-		for(int i = 0; i < msg1[0].length; i++)
-		{
-			ret[0][i] = msg2[0][i];
-			ret[1][i] = Parser.getVal(msg1, msg2[0][i]);
-		}
-		
-		return ret;
+		return msg;
 	}
 	
 	public static String readMessage(int msgid)
@@ -135,12 +128,12 @@ public class Parser
 			if(start < 0)
 				break;
 			
-			start += 5;
+			start += 7;
 			
 			end = message.indexOf(value2, start);
 			
 			values.add(message.substring(start, end));
-			offset = end + 6;
+			offset = end + 8;
 		}
 
 		String [][] ret = new String[2][keys.size()];

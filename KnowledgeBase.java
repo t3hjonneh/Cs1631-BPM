@@ -104,8 +104,12 @@ public class KnowledgeBase
 			out = new PrintWriter(server.getOutputStream());
 			in = new BufferedReader(new InputStreamReader(server.getInputStream()));
 		
-			System.out.println("Initializing...");
-			out.println("MsgID$$$23$$$Name$$$BloodPressureMonitor_KnowledgeBase$$$Passcode$$$****");
+			if(debug == 1)
+				System.out.println("Initializing...");
+			
+			String[][] outMessage = Parser.parseMessage(Parser.readMessage(23));
+			outMessage = Parser.setVal(outMessage, "Name", "BloodPressureMonitor_KnowledgeBase");
+			out.println(Parser.reparse(outMessage,"$$$"));
 			out.flush();
 			
 			while(true)
@@ -133,39 +137,31 @@ public class KnowledgeBase
 	private String getMessage(int msgID, String[][] message)
 	{
 		String[][] outMessage = new String[0][0];
+		int systolic = 0;
+		int diastolic = 0;
+		
 		if(msgID == 133 || msgID == 134)
+		{
 			outMessage = Parser.parseMessage(Parser.readMessage(132));
+			systolic = Integer.parseInt(Parser.getVal(message, "Systolic"));
+			diastolic = Integer.parseInt(Parser.getVal(message, "Diastolic"));
+		}
 		else
 		{
 			outMessage = Parser.parseMessage(Parser.readMessage(26));
-			for(int i = 0; i < outMessage[0].length; i++)
-				if(outMessage[0][i].equals("AckMsgID"))
-					outMessage[1][i] = Integer.toString(msgID);
+			outMessage = Parser.setVal(outMessage, "AckMsgID", Integer.toString(msgID));
 		}
-			
+		
 		for(int i = 0; i < message[0].length; i++)
-			for(int j = 0; j < outMessage[0].length; j++)
-			{
-				if(message[0][i].equals(outMessage[0][j]) && !message[0][i].equals("MsgID") && !message[0][i].equals("Description"))
-					outMessage[1][j] = message[1][i];
-			}
+			if(!message[0][i].equals("MsgID") && !message[0][i].equals("Description"))
+				Parser.setVal(outMessage, message[0][i], message[1][i]);
 		
-		int systolic = 0, diastolic = 0;
-		for(int i = 0; i < outMessage[0].length; i++)
-			if(outMessage[0][i].equals("Systolic"))
-				systolic = Integer.parseInt(outMessage[1][i]);
-			else if(outMessage[0][i].equals("Diastolic"))
-				diastolic = Integer.parseInt(outMessage[1][i]);
-		
-		String[] diagnosis = bloodPressureDiagnosis(systolic, diastolic).split(" : ");
-		
-		for(int i = 0; i < outMessage[0].length; i++)
-			if(outMessage[0][i].equals("Diagnosis"))
-				outMessage[1][i] = diagnosis[0];
-			else if(outMessage[0][i].equals("Recommended Course of Action"))
-				outMessage[1][i] = diagnosis[1];
-		
-		
+		if(systolic != 0)
+		{
+			String[] diagnosis = bloodPressureDiagnosis(systolic, diastolic).split(" : ");
+			outMessage = Parser.setVal(outMessage, "Diagnosis",  diagnosis[0]);
+			outMessage = Parser.setVal(outMessage, "Recommended Course of Action",  diagnosis[1]);
+		}
 		
 		String out = Parser.reparse(outMessage, "$$$");
 		if(debug == 1)

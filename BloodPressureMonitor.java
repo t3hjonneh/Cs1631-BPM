@@ -32,13 +32,19 @@ public class  BloodPressureMonitor
 			out = new PrintWriter(server.getOutputStream());
 			in = new BufferedReader(new InputStreamReader(server.getInputStream()));
 		
-			System.out.println("Initializing...");
-			out.println("MsgID$$$23$$$Name$$$BloodPressureMonitor$$$Passcode$$$****");
+			if(debug == 1)
+				System.out.println("Initializing...");
+				
+			String[][] outMessage = Parser.parseMessage(Parser.readMessage(23));
+			outMessage = Parser.setVal(outMessage, "Name", "BloodPressureMonitor");
+			out.println(Parser.reparse(outMessage,"$$$"));
 			out.flush();
 			
 			while(true)
 			{
-				System.out.println("Waiting...");
+				if(debug == 1)
+					System.out.println("Waiting...");
+					
 				message = in.readLine();
 				
 				if(debug == 1)
@@ -70,17 +76,12 @@ public class  BloodPressureMonitor
 		else
 		{
 			outMessage = Parser.parseMessage(Parser.readMessage(26));
-			for(int i = 0; i < outMessage[0].length; i++)
-				if(outMessage[0][i].equals("AckMsgID"))
-					outMessage[1][i] = Integer.toString(msgID);
+			outMessage = Parser.setVal(outMessage, "AckMsgID", Integer.toString(msgID));
 		}
-			
+		
 		for(int i = 0; i < message[0].length; i++)
-			for(int j = 0; j < outMessage[0].length; j++)
-			{
-				if(message[0][i].equals(outMessage[0][j]) && !message[0][i].equals("MsgID") && !message[0][i].equals("Description"))
-					outMessage[1][j] = message[1][i];
-			}
+			if(!message[0][i].equals("MsgID") && !message[0][i].equals("Description"))
+				Parser.setVal(outMessage, message[0][i], message[1][i]);
 		
 		String out = Parser.reparse(outMessage, "$$$");
 		if(debug == 1)
