@@ -109,7 +109,7 @@ public class KnowledgeBase
 				System.out.println("Initializing...");
 			// get message 23 and send it to the server
 			String[][] outMessage = Parser.parseMessage(Parser.readMessage(23));
-			outMessage = Parser.setVal(outMessage, "Name", "BloodPressureMonitor_KnowledgeBase");
+			outMessage = Parser.setVal(outMessage, "Name", "g3KnowledgeBase");
 			out.println(Parser.reparse(outMessage,"$$$"));
 			out.flush();
 			

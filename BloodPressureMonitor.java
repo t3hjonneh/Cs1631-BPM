@@ -37,7 +37,7 @@ public class  BloodPressureMonitor
 				System.out.println("Initializing...");
 				
 			String[][] outMessage = Parser.parseMessage(Parser.readMessage(23));
-			Parser.setVal(outMessage, "Name", "BloodPressureMonitor");
+			Parser.setVal(outMessage, "Name", "g3BloodPressureMonitor");
 			out.println(Parser.reparse(outMessage,"$$$"));
 			out.flush();
 			
