@@ -5,8 +5,10 @@ import java.lang.*;
 public class Parser
 {
 	public Parser()
-	{}
+	{} // this method is completely useless because every method in this file is static
 	
+	// reparse takes in a message array of the type which comes out of a parseMessage method
+	// it then converts this 2d array back to the message of the type which can be sent to the server
 	public static String reparse(String [][] msg, String delimeter)
 	{
 		String ret = msg[0][0] + delimeter + msg[1][0];
@@ -16,6 +18,9 @@ public class Parser
 		return ret;
 	}
 	
+	// returns the value of a specific element from a 2d array of the type which comes out of
+	// a parseMessage method
+	// returns an empty string if the key does not exist
 	public static String getVal(String[][] msg, String key)
 	{
 		for(int i = 0; i < msg[0].length; i++)
@@ -25,15 +30,15 @@ public class Parser
 		return "";
 	}
 	
-	public static String[][] setVal(String[][] msg, String key, String val)
+	// sets the value of a key in a 2d array
+	public static void setVal(String[][] msg, String key, String val)
 	{
 		for(int i = 0; i < msg[0].length; i++)
 			if(msg[0][i].equals(key))
 				msg[1][i] = val;
-		
-		return msg;
 	}
 	
+	// reads in the xml of the file which holds msgid
 	public static String readMessage(int msgid)
 	{
 		Scanner in;
@@ -56,15 +61,22 @@ public class Parser
 		return ret;
 	}
 	
+	// returns the message id of a given parsed message
+	// returns -1 if the message id is not found
 	public static int getMessageID(String[][] parsed)
 	{
 		int i = 0;
-		while(!parsed[0][i].equals("MsgID"))
+		while((!parsed[0][i].equals("MsgID")) && (i < parsed[0].length))
 			i++;
 		
+		if(i == parsed[0].length) // note: this is a failsafe condition which should never be activated
+			return -1;
+		// else:
 		return (new Integer(parsed[1][i])).intValue();
 	}
 
+	// parses a message from it's delimeted form used on the netwok into a 2d array
+	// this 2d array is used as an input to a number of methods defined in parser
 	public static String[][] parseMessage(String message, String delimeter)
 	{
 		String [] items = message.split(delimeter);
@@ -74,6 +86,8 @@ public class Parser
 		return ret;
 	}
 
+	// this parses an xml file of the type found in our g3 folder into a 2 d array
+	// this 2d array is used as an input to a number of methods defined in parser
 	public static String[][] parseMessage(String message)
 	{
 		String key1 = new String("<Key>");
@@ -93,6 +107,7 @@ public class Parser
 		keys.add("MsgID");
 		keys.add("Description");
 		
+		// get the msgid and the description
 		int start = 0;
 		int end = 0;
 		int offset = 0;
@@ -106,6 +121,7 @@ public class Parser
 		end = message.indexOf(desc2, start);
 		values.add(message.substring(start, end));
 		
+		// get all keys as denoted by the tag <key>key</key>
 		while(true)
 		{
 			start = message.indexOf(key1, offset);
@@ -122,6 +138,8 @@ public class Parser
 
 		offset = 0;
 
+		// get all the values as denoted by the tag <value>value</value> each value is assumed to be directly
+		// associated with the tkey in the same order as the keys were given
 		while(true)
 		{
 			start = message.indexOf(value1, offset);
@@ -136,6 +154,8 @@ public class Parser
 			offset = end + 8;
 		}
 
+		// store the values of the keys and their respective values in the
+		// array to return
 		String [][] ret = new String[2][keys.size()];
 		
 		ret[0] = keys.toArray(ret[0]);
