@@ -31,20 +31,21 @@ public class KnowledgeBase
 	int LLD = 40;
 	//High Low Diastolic
 	int HLD = 33;
-	static int debug = 0;
+	static boolean debug = false;
+	static boolean running = true;
 	
 	public static void main(String []args) throws Exception
 	{
 		if(args.length > 0)
-			for(String var : args)
+			for(String var : args) // for each loop? well it certainly does allow for some rather strange stuff
 				if(var.equals("-debug"))
-					debug = 1;
+					debug = true;
 				
 		new KnowledgeBase();
 	}
 	
 	public KnowledgeBase()
-	{
+	{ // method houses the primary driver for the rest of the program
 		String ip = "127.0.0.1";
 		int port = 7999;
 		Socket server;
@@ -54,7 +55,7 @@ public class KnowledgeBase
 
 		Scanner S;
 		try
-		{
+		{ // open up the knowledge base text and use it to update the conditions in the knowledgebase
 			S = new Scanner(new FileInputStream("knowledgebase.txt"));
 			while(S.hasNextLine())
 			{
@@ -98,33 +99,36 @@ public class KnowledgeBase
 		}
 		
 		try
-		{
+		{ // connect to the server
 			server = new Socket(ip, port);
 			
 			out = new PrintWriter(server.getOutputStream());
 			in = new BufferedReader(new InputStreamReader(server.getInputStream()));
 		
-			if(debug == 1)
+			if(debug)
 				System.out.println("Initializing...");
-			
+			// get message 23 and send it to the server
 			String[][] outMessage = Parser.parseMessage(Parser.readMessage(23));
 			outMessage = Parser.setVal(outMessage, "Name", "BloodPressureMonitor_KnowledgeBase");
 			out.println(Parser.reparse(outMessage,"$$$"));
 			out.flush();
 			
-			while(true)
-			{
-				if(debug == 1)
+			while(running)
+			{ // read in messages from the server
+				if(debug)
 					System.out.println("Waiting...");
 					
 				message = in.readLine();
 				
-				if(debug == 1)
+				if(debug)
 					System.out.println("Message Recieved:\n"+message);
 				
 				String[][] parsed = Parser.parseMessage(message, "[$][$][$]");
 				int msgid = Parser.getMessageID(parsed);
 				
+				//if(msgid == 24)
+				//	running == false;
+				//else
 				out.println(getMessage(msgid, parsed));
 				out.flush();
 			}
@@ -136,6 +140,7 @@ public class KnowledgeBase
 		}
 	}
 	
+	// gets
 	private String getMessage(int msgID, String[][] message)
 	{
 		String[][] outMessage = new String[0][0];
@@ -143,37 +148,37 @@ public class KnowledgeBase
 		int diastolic = 0;
 		
 		if(msgID == 133 || msgID == 134)
-		{
+		{ // get the systolic and diastolic measurements
 			outMessage = Parser.parseMessage(Parser.readMessage(132));
 			systolic = Integer.parseInt(Parser.getVal(message, "Systolic"));
 			diastolic = Integer.parseInt(Parser.getVal(message, "Diastolic"));
 		}
 		else
-		{
+		{ // acknowledge whatever was sent to us
 			outMessage = Parser.parseMessage(Parser.readMessage(26));
-			outMessage = Parser.setVal(outMessage, "AckMsgID", Integer.toString(msgID));
+			Parser.setVal(outMessage, "AckMsgID", Integer.toString(msgID));
 		}
-		
+		// set value of the message to whatever was sent to us
 		for(int i = 0; i < message[0].length; i++)
 			if(!message[0][i].equals("MsgID") && !message[0][i].equals("Description"))
 				Parser.setVal(outMessage, message[0][i], message[1][i]);
 		
-		if(systolic != 0)
-		{
+		if(systolic > 0)
+		{ // if there is a pulse, get reading and parse the output
 			String[] diagnosis = bloodPressureDiagnosis(systolic, diastolic).split(" : ");
-			outMessage = Parser.setVal(outMessage, "Diagnosis",  diagnosis[0]);
-			outMessage = Parser.setVal(outMessage, "Recommended Course of Action",  diagnosis[1]);
+			Parser.setVal(outMessage, "Diagnosis",  diagnosis[0]);
+			Parser.setVal(outMessage, "Recommended Course of Action",  diagnosis[1]);
 		}
-		
+		// format the message to output
 		String out = Parser.reparse(outMessage, "$$$");
-		if(debug == 1)
+		if(debug)
 			System.out.println("Message Sent:\n"+out);
 			
 		return out;
 	}
 	
 	public String bloodPressureDiagnosis(int Systolic, int Diastolic)
-	{
+	{ // makes a diagnosis and returns it
 		int conditionD = 0;
 		if(Diastolic >= DSH)
 		{
