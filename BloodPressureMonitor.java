@@ -1,17 +1,18 @@
+// see Knowledgebase
 import java.io.*;
 import java.net.*;
 import java.util.*;
 
 public class  BloodPressureMonitor
 { 
-	static int debug = 0;
+	static boolean debug = false;
 	
 	public static void main(String []args) throws Exception
 	{
 		if(args.length > 0)
 			for(String var : args)
 				if(var.equals("-debug"))
-					debug = 1;
+					debug = true;
 				
 		new BloodPressureMonitor();
 	}
@@ -32,22 +33,22 @@ public class  BloodPressureMonitor
 			out = new PrintWriter(server.getOutputStream());
 			in = new BufferedReader(new InputStreamReader(server.getInputStream()));
 		
-			if(debug == 1)
+			if(debug)
 				System.out.println("Initializing...");
 				
 			String[][] outMessage = Parser.parseMessage(Parser.readMessage(23));
-			outMessage = Parser.setVal(outMessage, "Name", "BloodPressureMonitor");
+			Parser.setVal(outMessage, "Name", "BloodPressureMonitor");
 			out.println(Parser.reparse(outMessage,"$$$"));
 			out.flush();
 			
 			while(true)
 			{
-				if(debug == 1)
+				if(debug)
 					System.out.println("Waiting...");
 					
 				message = in.readLine();
 				
-				if(debug == 1)
+				if(debug)
 					System.out.println("Message Recieved:\n"+message);
 				
 				String[][] parsed = Parser.parseMessage(message, "[$][$][$]");
@@ -76,7 +77,7 @@ public class  BloodPressureMonitor
 		else
 		{
 			outMessage = Parser.parseMessage(Parser.readMessage(26));
-			outMessage = Parser.setVal(outMessage, "AckMsgID", Integer.toString(msgID));
+			Parser.setVal(outMessage, "AckMsgID", Integer.toString(msgID));
 		}
 		
 		for(int i = 0; i < message[0].length; i++)
@@ -84,7 +85,7 @@ public class  BloodPressureMonitor
 				Parser.setVal(outMessage, message[0][i], message[1][i]);
 		
 		String out = Parser.reparse(outMessage, "$$$");
-		if(debug == 1)
+		if(debug)
 			System.out.println("Message Sent:\n"+out);
 			
 		return out;
