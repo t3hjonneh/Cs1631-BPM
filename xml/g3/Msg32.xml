@@ -4,6 +4,14 @@
         <Description>Blood Pressure Alert</Description>
     </Head>
     <Body>
+	<Item>
+		<Key>Diagnosis</Key>
+		<Value>Severe</Value>
+	</Item>
+	<Item>
+		<Key>Suggestions</Key>
+		<Value>See doctor immediately</Value>
+	</Item>
         <Item>
             <Key>Systolic</Key>
             <Value>114</Value>
@@ -19,6 +27,10 @@
         <Item>
             <Key>Alert Type</Key>
             <Value>Blood Pressure Alert</Value>
+        </Item>
+        <Item>
+            <Key>Name</Key>
+            <Value>g3 Blood Pressure Monitor</Value>
         </Item>
         <Item>
             <Key>DateTime</Key>
