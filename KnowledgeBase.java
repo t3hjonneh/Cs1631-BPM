@@ -147,9 +147,13 @@ public class KnowledgeBase
 		int systolic = 0;
 		int diastolic = 0;
 		
-		if(msgID == 133 || msgID == 134)
+		if(msgID == 45)
+		{ // get the patient information
+			outMessage = Parser.parseMessage(Parser.readMessage(26));
+		}
+		else if(msgID == 130)
 		{ // get the systolic and diastolic measurements
-			outMessage = Parser.parseMessage(Parser.readMessage(132));
+			outMessage = Parser.parseMessage(Parser.readMessage(131));
 			systolic = Integer.parseInt(Parser.getVal(message, "Systolic"));
 			diastolic = Integer.parseInt(Parser.getVal(message, "Diastolic"));
 		}
@@ -158,6 +162,7 @@ public class KnowledgeBase
 			outMessage = Parser.parseMessage(Parser.readMessage(26));
 			Parser.setVal(outMessage, "AckMsgID", Integer.toString(msgID));
 		}
+		
 		// set value of the message to whatever was sent to us
 		for(int i = 0; i < message[0].length; i++)
 			if(!message[0][i].equals("MsgID") && !message[0][i].equals("Description"))
@@ -167,7 +172,7 @@ public class KnowledgeBase
 		{ // if there is a pulse, get reading and parse the output
 			String[] diagnosis = bloodPressureDiagnosis(systolic, diastolic).split(" : ");
 			Parser.setVal(outMessage, "Diagnosis",  diagnosis[0]);
-			Parser.setVal(outMessage, "Recommended Course of Action",  diagnosis[1]);
+			Parser.setVal(outMessage, "Suggestions",  diagnosis[1]);
 		}
 		// format the message to output
 		String out = Parser.reparse(outMessage, "$$$");

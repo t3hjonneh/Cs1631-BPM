@@ -69,11 +69,9 @@ public class  BloodPressureMonitor
 	{
 		String[][] outMessage = new String[0][0];
 		if(msgID == 31)
-			outMessage = Parser.parseMessage(Parser.readMessage(133));
-		else if(msgID == 130)
-			outMessage = Parser.parseMessage(Parser.readMessage(134));
-		else if(msgID == 132)
-			outMessage = Parser.parseMessage(Parser.readMessage(131));
+			outMessage = Parser.parseMessage(Parser.readMessage(130));
+		else if(msgID == 131)
+			outMessage = Parser.parseMessage(Parser.readMessage(32));
 		else
 		{
 			outMessage = Parser.parseMessage(Parser.readMessage(26));
@@ -87,7 +85,7 @@ public class  BloodPressureMonitor
 		String out = Parser.reparse(outMessage, "$$$");
 		if(debug)
 			System.out.println("Message Sent:\n"+out);
-			
+		
 		return out;
 	}
 }
