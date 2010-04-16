@@ -45,7 +45,7 @@ public class Parser
 		String ret = "";
 		try
 		{
-			in = new Scanner(new FileInputStream("xml/g3/Msg" + msgid + ".xml"));
+			in = new Scanner(new FileInputStream("g3xml/Msg" + msgid + ".xml"));
 			ret = new String();
 			while(in.hasNextLine())
 				ret += in.nextLine();
