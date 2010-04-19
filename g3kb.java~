@@ -291,38 +291,7 @@ public class g3kb
 
 	private void createKB(File f)
 	{
-		PrintWriter pw = new PrintWriter(new FileOutputStream(f));
-		String[] tmp = new String[27];
-		tmp[0] = "//Borderline Isolated Systolic Hypertension";
-		tmp[1] = "BISH:140";
-		tmp[2] = "//Isolated Systolic Hypertension";
-		tmp[3] = "ISH:160";
-		tmp[4] = "//Severe Isolated Systolic Hypertension";
-		tmp[5] = "SISH:200";
-		tmp[6] = "//Diastolic High Normal";
-		tmp[7] = "DHN:85";
-		tmp[8] = "//Diastolic Mild Hypertension";
-		tmp[9] = "DMH:90";
-		tmp[10] = "//Diastolic Moderate Hypertension";
-		tmp[11] = "DModH:105";
-		tmp[12] = "//Diastolic Severe Hypertension";
-		tmp[13] = "DSH:115";
-		tmp[14] = "";
-		tmp[15] = "//Low Systolic";
-		tmp[16] = "LS:90";
-		tmp[17] = "//Low Low Systolic";
-		tmp[18] = "LLS:60";
-		tmp[19] = "//High Low Systolic";
-		tmp[20] = "HLS:50";
-		tmp[21] = "//Low Diastolic";
-		tmp[22] = "LD:60";
-		tmp[23] = "//Low Low Diastolic";
-		tmp[24] = "LLD:40";
-		tmp[25] = "//High Low Diastolic";
-		tmp[26] = "HLD:33";
-
-		for(int i = 0; i < 27; i++)
-			pw.print(tmp[i]);
+		FileOutputStream
 	}
 }
 

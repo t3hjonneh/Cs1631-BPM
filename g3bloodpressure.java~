@@ -13,17 +13,7 @@ public class  g3bloodpressure
 			for(String var : args)
 				if(var.equals("-debug"))
 					debug = true;
-		
-		File f = new File("g3/");
-        	if(!f.exists() || !f.isDirectory())
-		{
-			f.mkdir();
-			if(debug)
-				System.out.println("directory g3 was created");
-			System.out.println("xml files not found. Please place xml files in g3 directory which was just created.");
-			System.exit(1);
-		}
-
+				
 		new g3bloodpressure();
 	}
 	
