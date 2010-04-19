@@ -323,6 +323,8 @@ public class g3kb
 
 		for(int i = 0; i < 27; i++)
 			pw.print(tmp[i]);
+
+		pw.close();
 	}
 }
 
